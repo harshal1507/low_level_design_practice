@@ -1,0 +1,98 @@
+package com.example.ecommerce.legacy;
+
+import org.springframework.web.bind.annotation.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
+import javax.mail.*;
+import javax.mail.internet.*;
+
+/**
+ * MONOLITHIC ANTIPATTERN
+ * 
+ * Why this breaks SOLID:
+ * 1. Violates SRP: Handles HTTP requests, tax calculation, raw SQL database operations, AND low-level SMTP email logic.
+ * 2. Violates OCP: Adding a new notification channel (like SMS) forces you to modify this class with `if/else` checks.
+ * 3. Violates DIP: Instantiates concrete JDBC connections and JavaMail sessions directly using `new` instead of depending on Spring abstractions.
+ */
+@RestController
+@RequestMapping("/api/v1/bad-orders")
+public class BadOrderController {
+
+    @PostMapping
+    public String createOrder(@RequestBody BadOrderRequest request) {
+        
+        // 1. Business Logic: Tax & Total Calculation mixed in Controller
+        double tax = request.getAmount() * 0.18; // Fixed 18% tax
+        double totalAmount = request.getAmount() + tax;
+
+        // 2. Data Access Logic: Low-level SQL operations inside Controller
+        String dbUrl = "jdbc:mysql://localhost:3306/shop_db";
+        String dbUser = "root";
+        String dbPassword = "password";
+        long generatedOrderId = System.currentTimeMillis(); // Simulated ID
+
+        try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
+            String sql = "INSERT INTO orders (id, customer_email, total_amount) VALUES (?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setLong(1, generatedOrderId);
+                stmt.setString(2, request.getCustomerEmail());
+                stmt.setDouble(3, totalAmount);
+                stmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Failed to save order to database";
+        }
+
+        // 3. Notification Logic: Hardcoded SMTP Email transmission
+        if ("EMAIL".equalsIgnoreCase(request.getNotificationChannel())) {
+            Properties prop = new Properties();
+            prop.put("mail.smtp.host", "smtp.gmail.com");
+            prop.put("mail.smtp.port", "587");
+            prop.put("mail.smtp.auth", "true");
+            prop.put("mail.smtp.starttls.enable", "true");
+
+            Session session = Session.getInstance(prop, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication("myemail@gmail.com", "app_password");
+                }
+            });
+
+            try {
+                Message message = new MimeMessage(session);
+                message.setFrom(new InternetAddress("no-reply@shop.com"));
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(request.getCustomerEmail()));
+                message.setSubject("Order Confirmation");
+                message.setText("Your order #" + generatedOrderId + " total is $" + totalAmount);
+
+                Transport.send(message);
+            } catch (MessagingException e) {
+                e.printStackTrace();
+                return "Order saved, but email failed to send";
+            }
+        } else if ("SMS".equalsIgnoreCase(request.getNotificationChannel())) {
+            // Hardcoded SMS logic added directly inside the controller
+            System.out.println("Sending SMS to " + request.getCustomerEmail());
+        }
+
+        return "Order #" + generatedOrderId + " created successfully!";
+    }
+}
+
+// Request DTO
+class BadOrderRequest {
+    private String customerEmail;
+    private double amount;
+    private String notificationChannel; // "EMAIL" or "SMS"
+
+    public String getCustomerEmail() { return customerEmail; }
+    public void setCustomerEmail(String customerEmail) { this.customerEmail = customerEmail; }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
+    public String getNotificationChannel() { return notificationChannel; }
+    public void setNotificationChannel(String notificationChannel) { this.notificationChannel = notificationChannel; }
+}

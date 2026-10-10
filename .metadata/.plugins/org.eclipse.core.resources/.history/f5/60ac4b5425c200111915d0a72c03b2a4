@@ -1,0 +1,44 @@
+package com.design.patterns.builder;
+
+
+final class UserAccount{
+	private final String accountNumber; 
+	private final String accountHolderName;
+	private final String email;
+	private final String phoneNumber;
+	private final double balance;
+	private final boolean isOverdraftAllowed;
+	private final String currency;
+	
+	private UserAccount(Builder builder) {
+		this.accountNumber = builder.accountNumber;
+		this.accountHolderName = builder.accountHolderName;
+
+	
+		public static final Builder{
+			private final String accountNumber; 
+			private final String accountHolderName;
+			
+	//		private String email;
+	//		private String phoneNumber;
+	//		private double balance;
+	//		private boolean isOverdraftAllowed;
+	//		private String currency;
+			
+			public Builder(String accountNumber, String accountHolderName) {
+				this.accountNumber = accountNumber;
+				this.accountHolderName = accountHolderName;
+			}
+			
+			public UserAccount build() {
+				return new UserAccount(this);
+			}
+		}
+	}
+}
+
+public class Builder3 {
+	public static void main(String[] args) {
+		
+	}
+}

@@ -1,0 +1,73 @@
+# Compiled Java files
+
+*.class
+.metadata/
+
+# Build output
+
+target/
+build/
+out/
+
+# Gradle
+
+.gradle/
+
+# Maven
+
+.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+
+.vscode/
+
+# Eclipse
+
+.project
+.classpath
+.settings/
+
+# Logs
+
+*.log
+logs/
+
+# Operating system files
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+
+*.tmp
+*.swp
+*.bak
+
+# Environment and secrets
+
+.env
+.env.*
+!.env.example
+
+# Java crash dumps
+
+hs_err_pid*
+replay_pid*
+
+# Test reports
+
+surefire-reports/
+failsafe-reports/
+
+# Local configuration
+
+application-local.properties
+application-local.yml

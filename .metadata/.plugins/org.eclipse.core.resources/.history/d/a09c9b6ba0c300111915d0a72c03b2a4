@@ -1,0 +1,17 @@
+package com.design.patterns.factory;
+
+interface Logistics{
+	void send(String route);
+}
+
+class AirLogisticsService implements Logistics{
+	
+	@Override
+	public void send(String route) {
+		System.out.println("Sending package by Airlines...");
+	}
+}
+
+public class FactoryPattern2 {
+
+}

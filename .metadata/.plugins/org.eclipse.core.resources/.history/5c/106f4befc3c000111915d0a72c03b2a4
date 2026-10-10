@@ -1,0 +1,31 @@
+package com.example.ecommerce.notification;
+
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Component
+public class NotificationFactory {
+
+    private final Map<String, NotificationStrategy> strategies;
+
+    // Spring auto-wires all NotificationStrategy beans into this constructor
+    public NotificationFactory(List<NotificationStrategy> strategyList) {
+        this.strategies = strategyList.stream()
+                .collect(Collectors.toMap(
+                        strategy -> strategy.getChannelName().toUpperCase(),
+                        Function.identity()
+                ));
+    }
+
+    public NotificationStrategy getStrategy(String channel) {
+        NotificationStrategy strategy = strategies.get(channel.toUpperCase());
+        if (strategy == null) {
+            throw new IllegalArgumentException("Unsupported notification channel: " + channel);
+        }
+        return strategy;
+    }
+}

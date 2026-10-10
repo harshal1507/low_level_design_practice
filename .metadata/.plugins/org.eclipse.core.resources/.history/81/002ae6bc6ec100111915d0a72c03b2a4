@@ -1,0 +1,5 @@
+package com.design.patterns;
+
+public class BuilderPattern2 {
+
+}

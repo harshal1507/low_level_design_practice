@@ -1,0 +1,42 @@
+package com.example.ecommerce.service;
+
+import com.example.ecommerce.dto.OrderRequest;
+import com.example.ecommerce.dto.OrderResponse;
+import com.example.ecommerce.model.Order;
+import com.example.ecommerce.notification.NotificationFactory;
+import com.example.ecommerce.notification.NotificationStrategy;
+import com.example.ecommerce.repository.OrderRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final NotificationFactory notificationFactory;
+
+    // Constructor Injection
+    public OrderService(OrderRepository orderRepository, NotificationFactory notificationFactory) {
+        this.orderRepository = orderRepository;
+        this.notificationFactory = notificationFactory;
+    }
+
+    @Transactional
+    public OrderResponse processOrder(OrderRequest request) {
+        // 1. Calculate Tax (18%)
+        double totalAmount = request.getAmount() + (request.getAmount() * 0.18);
+
+        // 2. Persist Order via Repository (SRP)
+        Order order = new Order(request.getCustomerEmail(), totalAmount);
+        Order savedOrder = orderRepository.save(order);
+
+        // 3. Resolve & Trigger Notification Strategy (OCP & DIP)
+        NotificationStrategy strategy = notificationFactory.getStrategy(request.getNotificationChannel());
+        strategy.sendNotification(
+                request.getCustomerEmail(),
+                "Your order #" + savedOrder.getId() + " total is $" + savedOrder.getTotalAmount()
+        );
+
+        return new OrderResponse(savedOrder.getId(), savedOrder.getTotalAmount(), "SUCCESS");
+    }
+}

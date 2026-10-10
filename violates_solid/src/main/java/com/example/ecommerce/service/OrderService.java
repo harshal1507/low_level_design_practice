@@ -1,0 +1,74 @@
+package com.example.ecommerce.service;
+
+import com.example.ecommerce.dto.OrderRequest;
+import com.example.ecommerce.dto.OrderResponse;
+import com.example.ecommerce.model.Order;
+import com.example.ecommerce.notification.NotificationChannel;
+import com.example.ecommerce.notification.NotificationFactory;
+import com.example.ecommerce.notification.NotificationStrategy;
+import com.example.ecommerce.repository.OrderRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+@Service
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final NotificationFactory notificationFactory;
+
+    public OrderService(OrderRepository orderRepository, NotificationFactory notificationFactory) {
+        this.orderRepository = orderRepository;
+        this.notificationFactory = notificationFactory;
+    }
+
+    @Transactional
+    public OrderResponse processOrder(OrderRequest request) {
+        // 1. Calculate Tax & Total
+        double totalAmount = calculateTotal(request.getAmount());
+
+        // 2. Persist Order in DB
+        Order order = new Order(request.getCustomerEmail(), totalAmount);
+        Order savedOrder = orderRepository.save(order);
+
+     // 3. Convert String to Enum safely
+        NotificationChannel channel = parseChannel(request.getNotificationChannel());
+        
+        // 3. Resolve Strategy
+        NotificationStrategy strategy = notificationFactory.getStrategy(channel);
+
+        /*
+         * SENIOR INTERVIEW POINT: Dual-Write Problem / Transaction Boundaries
+         * Trigger external I/O (email/SMS) ONLY AFTER the DB transaction commits successfully.
+         * Calling an external network API inside an active @Transactional block holds open DB connections,
+         * increases lock contention, and sends notifications even if the DB transaction rolls back later!
+         */
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                strategy.sendNotification(
+                        savedOrder.getCustomerEmail(),
+                        "Your order #" + savedOrder.getId() + " total is $" + savedOrder.getTotalAmount()
+                );
+            }
+        });
+
+        return new OrderResponse(savedOrder.getId(), savedOrder.getTotalAmount(), "SUCCESS");
+    }
+
+    private double calculateTotal(double amount) {
+        return amount + (amount * 0.18);
+    }
+    
+    private NotificationChannel parseChannel(String channelStr) {
+        if (channelStr == null || channelStr.isBlank()) {
+            throw new IllegalArgumentException("Notification channel cannot be null or empty");
+        }
+        try {
+            return NotificationChannel.valueOf(channelStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unsupported notification channel: " + channelStr);
+        }
+    }
+}

@@ -1,0 +1,68 @@
+package com.design.patterns.factory;
+
+interface Logistics{
+	void send();
+}
+
+class AirLogisticsService implements Logistics{
+	@Override
+	public void send() {
+		System.out.println("Sending package by Airlines...");
+	}
+}
+
+class RoadLogisticsService implements Logistics{
+	@Override
+	public void send() {
+		System.out.println("Sending package by Road Transport...");
+	}
+}
+
+class RailwayLogisticsService implements Logistics{
+	@Override
+	public void send() {
+		System.out.println("Sending package by Train...");
+	}
+}
+
+
+class PackageDispatcher{
+	
+	public void dispatch(String transportType) {
+		if("AIR".equalsIgnoreCase(transportType)) {
+			AirLogisticsService air = new AirLogisticsService();
+			air.send();
+		}else if("RAILWAY".equalsIgnoreCase(transportType)) {
+			AirLogisticsService air = new AirLogisticsService();
+			air.send();
+		}else {
+			AirLogisticsService air = new AirLogisticsService();
+			air.send();
+		}
+	}
+}
+
+class PackageDispatcherFactory{
+	
+	public static Logistics dispatch(String transportType) {
+		if("AIR".equalsIgnoreCase(transportType)) {
+			return new AirLogisticsService();
+		}else if("RAILWAY".equalsIgnoreCase(transportType)) {
+			return new RailwayLogisticsService();
+		}else {
+			return new RoadLogisticsService();
+		}
+	}
+}
+
+public class FactoryPattern2 {
+
+	public static void main(String[] args) {
+	
+		Logistics air = PackageDispatcher.dispatch("AIR");
+		air.send();
+		
+		Logistics railway = PackageDispatcher.dispatch("RAILWAY");
+		railway.send();
+	}
+}

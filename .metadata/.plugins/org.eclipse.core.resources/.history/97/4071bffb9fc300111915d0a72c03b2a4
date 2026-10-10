@@ -1,0 +1,10 @@
+package com.design.patterns.factory;
+
+interface Logistics{
+	private send(String route);
+}
+
+
+public class FactoryPattern2 {
+
+}

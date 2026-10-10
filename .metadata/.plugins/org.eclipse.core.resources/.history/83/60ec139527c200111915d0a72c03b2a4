@@ -1,0 +1,111 @@
+package com.design.patterns.builder;
+
+public final class UserAccount {
+    private final String accountNumber; 
+    private final String accountHolderName;
+    private final String email;
+    private final String phoneNumber;
+    private final double balance;
+    private final boolean isOverdraftAllowed;
+    private final String currency;
+    
+    // Private constructor: Copy ALL fields from Builder
+    private UserAccount(Builder builder) {
+        this.accountNumber = builder.accountNumber;
+        this.accountHolderName = builder.accountHolderName;
+        this.email = builder.email;                      // Fixed: Was missing
+        this.phoneNumber = builder.phoneNumber;          // Fixed: Was missing
+        this.balance = builder.balance;                  // Fixed: Was missing
+        this.isOverdraftAllowed = builder.isOverdraftAllowed; // Fixed: Was missing
+        this.currency = builder.currency;                // Fixed: Was missing
+    }
+    
+    public String getAccountNumber() { return accountNumber; }
+    public String getAccountHolderName() { return accountHolderName; }
+    public String getEmail() { return email; }
+    public String getPhoneNumber() { return phoneNumber; }
+    public double getBalance() { return balance; }
+    public boolean isOverdraftAllowed() { return isOverdraftAllowed; }
+    public String getCurrency() { return currency; }
+
+    @Override
+    public String toString() {
+        return "UserAccount{" +
+                "accountNumber='" + accountNumber + '\'' +
+                ", accountHolderName='" + accountHolderName + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", balance=" + balance +
+                ", isOverdraftAllowed=" + isOverdraftAllowed +
+                ", currency='" + currency + '\'' +
+                '}';
+    }
+
+    public static class Builder {
+        private final String accountNumber; 
+        private final String accountHolderName;
+        
+        private String email;
+        private String phoneNumber;
+        private double balance = 0.0d;
+        private boolean isOverdraftAllowed = false;
+        private String currency = "USD";
+        
+        public Builder(String accountNumber, String accountHolderName) {
+            if (accountNumber == null || accountNumber.isBlank()) {
+                throw new IllegalArgumentException("Account number cannot be empty");
+            }
+            if (accountHolderName == null || accountHolderName.isBlank()) {
+                throw new IllegalArgumentException("Account holder name cannot be empty");
+            }
+            this.accountNumber = accountNumber;
+            this.accountHolderName = accountHolderName;
+        }
+        
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+        
+        public Builder phoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+            return this;
+        }
+
+        public Builder balance(double balance) {
+            this.balance = balance;
+            return this;
+        }
+        
+        public Builder isOverdraftAllowed(boolean isOverdraftAllowed) {
+            this.isOverdraftAllowed = isOverdraftAllowed;
+            return this;
+        }
+        
+        public Builder currency(String currency) {
+            this.currency = currency;
+            return this;
+        }
+        
+        public UserAccount build() {
+            // Validation: Negative balance is invalid if overdraft is not permitted
+            if (!this.isOverdraftAllowed && this.balance < 0) {
+                throw new IllegalStateException("Account balance cannot be negative unless overdraft is enabled.");
+            }
+            return new UserAccount(this);
+        }
+    }
+}
+
+public class Builder3 {
+	public static void main(String[] args) {
+		UserAccount harshalUser = new UserAccount.Builder("837892378800", "Harshal Giri")
+									.balance(50000.0)
+									.email("harshal.giri@neml.in")
+									.currency("INR")
+									.isOverdraftAllowed(true)
+									.build();
+		
+		System.out.println(harshalUser);
+	}
+}

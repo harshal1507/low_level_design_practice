@@ -1,0 +1,114 @@
+package com.design.patterns.factory;
+
+//1. Enum for Type Safety
+enum TransportType {
+	AIR, RAILWAY, ROAD
+}
+
+//2. Product Interface
+interface Logistics {
+	void send();
+}
+
+//3. Concrete Implementations
+class AirLogisticsService implements Logistics {
+	@Override
+	public void send() {
+		System.out.println("Sending package by Airlines...");
+	}
+}
+
+class RailwayLogisticsService implements Logistics {
+	@Override
+	public void send() {
+		System.out.println("Sending package by Train...");
+	}
+}
+
+class RoadLogisticsService implements Logistics {
+	@Override
+	public void send() {
+		System.out.println("Sending package by Road Transport...");
+	}
+}
+
+//4. Factory Class (Using modern Java switch expression)
+class PackageDispatcherFactory {
+
+	public static Logistics getLogisticsService(TransportType transportType) {
+		if (transportType == null) {
+			throw new IllegalArgumentException("Transport type cannot be null");
+		}
+
+		return switch (transportType) {
+		case AIR -> new AirLogisticsService();
+		case RAILWAY -> new RailwayLogisticsService();
+		case ROAD -> new RoadLogisticsService();
+		};
+	}
+}
+
+// 5. Anti Pattern
+class PackageDispatcher {
+
+    public void dispatch(TransportType transportType) {
+        if (transportType == null) {
+            throw new IllegalArgumentException("Transport type cannot be null");
+        }
+
+        switch (transportType) {
+            case AIR -> {
+                AirLogisticsService air = new AirLogisticsService();
+                air.send();
+            }
+            case RAILWAY -> {
+                RailwayLogisticsService railway = new RailwayLogisticsService();
+                railway.send();
+            }
+            case ROAD -> {
+                RoadLogisticsService road = new RoadLogisticsService();
+                road.send();
+            }
+        }
+    }
+}
+
+//6. Client
+public class FactoryPattern2 {
+
+	public static void main(String[] args) {
+
+		// Anti Factory Pattern Example
+		PackageDispatcher airRoute = new PackageDispatcher();
+		airRoute.dispatch(TransportType.AIR);
+
+		// Factory Pattern Usage
+		Logistics air = PackageDispatcherFactory.getLogisticsService(TransportType.AIR);
+		air.send();
+
+		Logistics railway = PackageDispatcherFactory.getLogisticsService(TransportType.RAILWAY);
+		railway.send();
+	}
+}
+
+
+// Spring boot version
+//@Service
+//public class PackageDispatcherFactory {
+//
+//    private final Map<String, Logistics> logisticsMap;
+//
+//    // Spring automatically injects all Beans implementing Logistics into a Map
+//    // Key = Bean Name (e.g., "airLogisticsService"), Value = Concrete Bean instance
+//    public PackageDispatcherFactory(Map<String, Logistics> logisticsMap) {
+//        this.logisticsMap = logisticsMap;
+//    }
+//
+//    public Logistics getLogisticsService(String serviceBeanName) {
+//        Logistics service = logisticsMap.get(serviceBeanName);
+//        if (service == null) {
+//            throw new IllegalArgumentException("No logistics provider found for: " + serviceBeanName);
+//        }
+//        return service;
+//    }
+//}

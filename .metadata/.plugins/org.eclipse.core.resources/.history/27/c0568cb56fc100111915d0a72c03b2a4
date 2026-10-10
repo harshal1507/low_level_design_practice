@@ -1,0 +1,13 @@
+package com.design.patterns.builder;
+
+
+final class UserAccount{
+	private final String accountNumber; 
+	private final String accountHolderName;
+}
+
+public class Builder3 {
+	public static void main(String[] args) {
+		
+	}
+}

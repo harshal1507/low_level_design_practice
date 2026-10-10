@@ -1,0 +1,18 @@
+package com.example.ecommerce.notification;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class EmailNotificationStrategy implements NotificationStrategy {
+
+    @Override
+    public void sendNotification(String recipient, String message) {
+        // SMTP / JavaMail client logic lives encapsulated here
+        System.out.println("[EMAIL SENT] To: " + recipient + " | Message: " + message);
+    }
+
+    @Override
+    public String getChannelName() {
+        return "EMAIL";
+    }
+}

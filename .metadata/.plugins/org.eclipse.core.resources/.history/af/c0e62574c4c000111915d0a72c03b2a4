@@ -1,0 +1,27 @@
+package com.example.ecommerce.notification;
+
+import org.springframework.stereotype.Component;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Component
+public class NotificationFactory {
+
+    // EnumMap is more memory-efficient and type-safe than HashMap for Enums
+    private final Map<NotificationChannel, NotificationStrategy> strategyMap;
+
+    // Spring auto-wires all beans implementing NotificationStrategy
+    public NotificationFactory(List<NotificationStrategy> strategies) {
+        strategyMap = new EnumMap<>(NotificationChannel.class);
+        for (NotificationStrategy strategy : strategies) {
+            strategyMap.put(strategy.getChannel(), strategy);
+        }
+    }
+
+    public NotificationStrategy getStrategy(NotificationChannel channel) {
+        return Optional.ofNullable(strategyMap.get(channel))
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported notification channel: " + channel));
+    }
+}

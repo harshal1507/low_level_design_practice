@@ -1,0 +1,25 @@
+package com.design.patterns;
+
+interface Notification {
+	void send(String message);
+}
+
+class EmailNotification implements Notification {
+	@Override
+	public void send(String msg) {
+		System.out.println("Email: " + msg);
+	}
+}
+
+class SmsNotification implements Notification {
+	@Override
+	public void send(String msg) {
+		System.out.println("SMS: " + msg);
+	}
+}
+
+public class FactoryPattern {
+	public static void main(String[] args) {
+
+	}
+}

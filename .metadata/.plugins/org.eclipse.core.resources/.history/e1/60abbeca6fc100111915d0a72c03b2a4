@@ -1,0 +1,22 @@
+package com.design.patterns.builder;
+
+
+final class UserAccount{
+	private final String accountNumber; 
+	private final String accountHolderName;
+	
+	private UserAccount(Builder builder) {
+		this.accountNumber = builder.accountNumber;
+		this.accountHolderName = builder.accountHolderName;
+	}
+	
+	public static Builder{
+		
+	}
+}
+
+public class Builder3 {
+	public static void main(String[] args) {
+		
+	}
+}

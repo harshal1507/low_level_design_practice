@@ -1,0 +1,61 @@
+package com.design.patterns;
+
+
+class ProductSearchQuery{
+	private final String category;      // Required
+    private final int pageSize;         // Required
+    private final Double minPrice;      // Optional
+    private final Boolean inStockOnly;  // Optional
+    
+    private ProductSearchQuery(Builder builder) {
+        this.category = builder.category;
+        this.pageSize = builder.pageSize;
+        this.minPrice = builder.minPrice;
+        this.inStockOnly = builder.inStockOnly;
+    }
+    
+    public static class Builder{
+    	private final String category;
+        private final int pageSize;
+        private Double minPrice;
+        private Boolean inStockOnly;
+        
+        
+        public Builder(String category, int pageSize) { // Required fields in Builder constructor
+            this.category = category;
+            this.pageSize = pageSize;
+        }
+        
+        public Builder minPrice(Double minPrice) { 
+        	this.minPrice = minPrice; return this; 
+        }
+        
+        public Builder inStockOnly(Boolean inStockOnly) { 
+        	this.inStockOnly = inStockOnly; return this; 
+        }
+
+        public ProductSearchQuery build() {
+            return new ProductSearchQuery(this);
+        }
+    }
+
+	@Override
+	public String toString() {
+		return "ProductSearchQuery [category=" + category + ", pageSize=" + pageSize + ", minPrice=" + minPrice
+				+ ", inStockOnly=" + inStockOnly + "]";
+	}
+    
+    
+}
+
+
+public class BuilderPattern {
+  public static void main(String[] args) {
+    ProductSearchQuery query = new ProductSearchQuery.Builder("Electronics", 10)
+    		.minPrice(100.0)
+    		.inStockOnly(true)
+    		.build();
+    
+    System.out.println(query);
+  }
+}

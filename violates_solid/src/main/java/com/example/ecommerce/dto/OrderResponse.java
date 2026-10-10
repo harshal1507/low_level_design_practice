@@ -1,0 +1,25 @@
+package com.example.ecommerce.dto;
+
+public class OrderResponse {
+	private Long orderId;
+	private double totalAmount;
+	private String status;
+
+	public OrderResponse(Long orderId, double totalAmount, String status) {
+		this.orderId = orderId;
+		this.totalAmount = totalAmount;
+		this.status = status;
+	}
+
+	public Long getOrderId() {
+		return orderId;
+	}
+
+	public double getTotalAmount() {
+		return totalAmount;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+}

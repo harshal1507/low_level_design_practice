@@ -1,0 +1,18 @@
+package com.example.ecommerce.notification;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class SmsNotificationStrategy implements NotificationStrategy {
+
+    @Override
+    public void sendNotification(String recipient, String message) {
+        // SMS Gateway integration logic
+        System.out.println("[SMS SENT] To: " + recipient + " | Message: " + message);
+    }
+
+    @Override
+    public String getChannelName() {
+        return "SMS";
+    }
+}
